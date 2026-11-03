@@ -13,3 +13,14 @@ if (!publicToken) {
 }
 
 export const stytch = new StytchHeadlessClient(publicToken);
+
+// Expose the client as a browser global so you can poke at the SDK straight from the devtools
+// console — e.g. `stytch.session.getSync()`, `stytch.user.getSync()`, `stytch.otps.email.send(...)`.
+// Handy for the sandbox; you'd drop this in a real app.
+declare global {
+	interface Window {
+		stytch: typeof stytch;
+	}
+}
+
+window.stytch = stytch;
