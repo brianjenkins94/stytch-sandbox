@@ -1,0 +1,25 @@
+###
+# @name searchUsers
+# @description A real (non-sandbox) read-only call: list the users in the project. Handy for confirming
+#              your credentials against live Test data — e.g. the user created by the frontend login.
+POST {{baseUrl}}/v1/users/search
+Authorization: Basic {{projectId}} {{secret}}
+Content-Type: application/json
+
+{
+  "limit": 100
+}
+
+{{
+  test("status is 200", () => {
+    if (response.statusCode !== 200) throw new Error(`Expected 200, got ${response.statusCode}`);
+  });
+  test("results is an array", () => {
+    if (!Array.isArray(response.parsedBody.results)) throw new Error("results array missing from response");
+  });
+
+  process.stdout.write(`  [users] found ${response.parsedBody.results.length} user(s)\n`);
+}}
+
+# Expected — 200 OK
+# { "status_code": 200, "results": [ { "user_id": "user-test-...", "emails": [ ... ] } ], "results_metadata": { "total": 1 } }

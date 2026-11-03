@@ -1,0 +1,72 @@
+###
+# @name sendMagicLink
+# @description Send an email magic link. The sandbox address returns 200 WITHOUT sending a real email,
+#              so it's a safe way to verify Basic-auth credentials against a Test project.
+POST {{baseUrl}}/v1/magic_links/email/login_or_create
+Authorization: Basic {{projectId}} {{secret}}
+Content-Type: application/json
+
+{
+  "email": "sandbox@stytch.com",
+  "login_magic_link_url": "http://localhost:5173/stytch-sandbox/",
+  "signup_magic_link_url": "http://localhost:5173/stytch-sandbox/"
+}
+
+{{
+  test("status is 200", () => {
+    if (response.statusCode !== 200) throw new Error(`Expected 200, got ${response.statusCode}`);
+  });
+  test("user_id is present", () => {
+    if (!response.parsedBody.user_id) throw new Error("user_id missing from response");
+  });
+}}
+
+# Expected — 200 OK
+# { "status_code": 200, "request_id": "request-id-test-...", "user_id": "user-test-...", "email_id": "email-test-..." }
+
+###
+# @name authenticateMagicLink
+# @description Exchange a magic-link token for a session. This sandbox token always authenticates to a
+#              200 + session, so no email round-trip is needed to test the full login.
+POST {{baseUrl}}/v1/magic_links/authenticate
+Authorization: Basic {{projectId}} {{secret}}
+Content-Type: application/json
+
+{
+  "token": "DOYoip3rvIMMW5lgItikFK-Ak1CfMsgjuiCyI7uuU94=",
+  "session_duration_minutes": 60
+}
+
+{{
+  test("status is 200", () => {
+    if (response.statusCode !== 200) throw new Error(`Expected 200, got ${response.statusCode}`);
+  });
+  test("session_token is present", () => {
+    if (!response.parsedBody.session_token) throw new Error("session_token missing from response");
+  });
+
+  exports.sessionToken = response.parsedBody.session_token;
+}}
+
+# Expected — 200 OK
+# { "status_code": 200, "user_id": "user-test-...", "session_token": "<SESSION_TOKEN>", "session_jwt": "<SESSION_JWT>" }
+
+###
+# @name authenticateMagicLink_invalidToken
+# @description Error path — a token that always fails auth returns 401 unable_to_auth_magic_link.
+POST {{baseUrl}}/v1/magic_links/authenticate
+Authorization: Basic {{projectId}} {{secret}}
+Content-Type: application/json
+
+{
+  "token": "3pzjQpgksDlGKWEwUq2Up--hCHC_0oamfLHyfspKDFU="
+}
+
+{{
+  test("status is 401", () => {
+    if (response.statusCode !== 401) throw new Error(`Expected 401, got ${response.statusCode}`);
+  });
+  test("error_type is unable_to_auth_magic_link", () => {
+    if (response.parsedBody.error_type !== "unable_to_auth_magic_link") throw new Error(`Expected unable_to_auth_magic_link, got ${response.parsedBody.error_type}`);
+  });
+}}

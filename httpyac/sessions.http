@@ -1,0 +1,45 @@
+###
+# @name authenticateSession
+# @description Validate a session token (what a backend does on every authenticated request to confirm
+#              the caller is logged in). This sandbox token always returns 200.
+POST {{baseUrl}}/v1/sessions/authenticate
+Authorization: Basic {{projectId}} {{secret}}
+Content-Type: application/json
+
+{
+  "session_token": "WJtR5BCy38Szd5AfoDpf0iqFKEt4EE5JhjlWUY7l3FtY"
+}
+
+{{
+  test("status is 200", () => {
+    if (response.statusCode !== 200) throw new Error(`Expected 200, got ${response.statusCode}`);
+  });
+  test("session is present", () => {
+    if (!response.parsedBody.session) throw new Error("session missing from response");
+  });
+}}
+
+# Expected — 200 OK
+# { "status_code": 200, "session": { "session_id": "session-test-...", ... }, "user": { ... } }
+
+###
+# @name authenticateSession_notFound
+# @description Error path — an unknown session token returns 404 session_not_found. This is exactly the
+#              check a real backend would use to gate access to a protected resource (see the app README:
+#              on static hosting there's no server to run this, which is why the UI gate is cosmetic).
+POST {{baseUrl}}/v1/sessions/authenticate
+Authorization: Basic {{projectId}} {{secret}}
+Content-Type: application/json
+
+{
+  "session_token": "59cnLELtq5cFVS6uYK9f-pAWzBkhqZl8AvLhbhOvKNWw"
+}
+
+{{
+  test("status is 404", () => {
+    if (response.statusCode !== 404) throw new Error(`Expected 404, got ${response.statusCode}`);
+  });
+  test("error_type is session_not_found", () => {
+    if (response.parsedBody.error_type !== "session_not_found") throw new Error(`Expected session_not_found, got ${response.parsedBody.error_type}`);
+  });
+}}

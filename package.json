@@ -1,0 +1,27 @@
+{
+  "name": "stytch-sandbox",
+  "version": "0.1.0",
+  "description": "Client-side Stytch email magic-link login POC, built with Vite and deployed static to GitHub Pages.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test:api": "httpyac send \"httpyac/*.http\" --env test --all"
+  },
+  "dependencies": {
+    "@stytch/vanilla-js": "^5.45.1"
+  },
+  "devDependencies": {
+    "httpyac": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  },
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=10.0.0"
+  }
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Stytch Sandbox</title>
+	</head>
+	<body>
+		<main class="card">
+			<h1>🔐 Stytch Sandbox</h1>
+			<p class="subtitle">Client-side auth proof-of-concept on GitHub Pages</p>
+
+			<div id="status" class="status" hidden></div>
+
+			<section id="logged-out" hidden>
+				<p>Sign in with an email magic link to reveal the secret.</p>
+				<form id="login-form">
+					<input
+						id="email"
+						type="email"
+						required
+						placeholder="you@example.com"
+						autocomplete="email"
+					/>
+					<button type="submit">Send magic link</button>
+				</form>
+				<p id="sent-msg" class="hint" hidden>
+					✉️ Check your inbox and click the link — it will send you back here signed in.
+				</p>
+			</section>
+
+			<section id="logged-in" hidden>
+				<p>Signed in as <strong id="user-email"></strong></p>
+				<div id="secret-box" class="secret">Loading secret…</div>
+				<button id="logout" class="secondary">Log out</button>
+			</section>
+
+			<p id="loading" class="loading">Loading…</p>
+		</main>
+
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>

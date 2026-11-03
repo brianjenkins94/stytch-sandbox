@@ -1,0 +1,55 @@
+###
+# @name sendEmailOtp
+# @description Send an email one-time passcode. The sandbox address returns 200 with a usable method_id
+#              and sends no real email. We capture that method_id for the authenticate step below.
+POST {{baseUrl}}/v1/otps/email/login_or_create
+Authorization: Basic {{projectId}} {{secret}}
+Content-Type: application/json
+
+{
+  "email": "sandbox@stytch.com"
+}
+
+{{
+  test("status is 200", () => {
+    if (response.statusCode !== 200) throw new Error(`Expected 200, got ${response.statusCode}`);
+  });
+  test("email_id (method_id) is present", () => {
+    if (!response.parsedBody.email_id) throw new Error("email_id missing from response");
+  });
+
+  // email_id is the method_id the authenticate call expects.
+  exports.methodId = response.parsedBody.email_id;
+}}
+
+# Expected — 200 OK
+# { "status_code": 200, "user_id": "user-test-...", "email_id": "email-test-..." }
+
+###
+# @name authenticateEmailOtp
+# @description Authenticate the OTP using the sandbox code 000000 and the method_id captured above.
+#              `@ref sendEmailOtp` makes httpyac run that request first and expose its exports here.
+# @ref sendEmailOtp
+POST {{baseUrl}}/v1/otps/authenticate
+Authorization: Basic {{projectId}} {{secret}}
+Content-Type: application/json
+
+{
+  "method_id": "{{methodId}}",
+  "code": "000000",
+  "session_duration_minutes": 60
+}
+
+{{
+  test("status is 200", () => {
+    if (response.statusCode !== 200) throw new Error(`Expected 200, got ${response.statusCode}`);
+  });
+  test("session_token is present", () => {
+    if (!response.parsedBody.session_token) throw new Error("session_token missing from response");
+  });
+
+  exports.sessionToken = response.parsedBody.session_token;
+}}
+
+# Expected — 200 OK
+# { "status_code": 200, "user_id": "user-test-...", "session_token": "<SESSION_TOKEN>", "session_jwt": "<SESSION_JWT>" }
