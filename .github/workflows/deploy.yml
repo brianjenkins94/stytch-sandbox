@@ -25,11 +25,9 @@ jobs:
         with:
           node-version: 24
       - run: npm ci
+      # The public token comes from the committed .env.production (public by design), so the build
+      # needs no secrets or dashboard setup.
       - run: npm run build
-        env:
-          # The public token is public by design, but keeping it in a repo secret/variable means
-          # it isn't hard-coded in source. Set it under Settings → Secrets and variables → Actions.
-          VITE_STYTCH_PUBLIC_TOKEN: ${{ secrets.VITE_STYTCH_PUBLIC_TOKEN }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
